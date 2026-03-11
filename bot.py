@@ -4,6 +4,7 @@ import threading
 from flask import Flask
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+import asyncio
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
@@ -27,17 +28,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(message.content[0].text)
 
-def run_bot():
+async def run_bot():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.run_polling()
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    print("Bot is polling...")
 
-# Run bot in background thread
-thread = threading.Thread(target=run_bot)
+def start_bot_thread():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_bot())
+    loop.run_forever()
+
+# Start bot in background thread
+thread = threading.Thread(target=start_bot_thread, daemon=True)
 thread.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-
     app_flask.run(host="0.0.0.0", port=port)
+
