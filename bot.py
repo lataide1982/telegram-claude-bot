@@ -20,13 +20,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello! I'm Claude. Ask me anything!")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": user_message}]
-    )
-    await update.message.reply_text(message.content[0].text)
+    try:
+        user_message = update.message.text
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1024,
+            messages=[{"role": "user", "content": user_message}]
+        )
+        await update.message.reply_text(message.content[0].text)
+    except Exception as e:
+        await update.message.reply_text(f"Error: {str(e)}")
 
 async def run_bot():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
@@ -50,4 +53,5 @@ thread.start()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app_flask.run(host="0.0.0.0", port=port)
+
 
