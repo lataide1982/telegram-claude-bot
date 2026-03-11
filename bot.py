@@ -5,8 +5,8 @@ from flask import Flask
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-ANTHROPIC_API_KEY = os.environ.get("3fea3f48-4cda-490f-b627-f7cdb3ccbcba")
-TELEGRAM_TOKEN = os.environ.get("8008263403:AAHR6gYxmqj3PVWpDPkgqumobkHS30kvxrs")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 app_flask = Flask(__name__)
@@ -39,4 +39,5 @@ thread.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+
     app_flask.run(host="0.0.0.0", port=port)
